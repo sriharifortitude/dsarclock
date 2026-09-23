@@ -1,0 +1,11 @@
+# Local development database. Tests start their own through Testcontainers.
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: dsarclock-postgres
+    environment:
+      POSTGRES_USER: dsarclock
+      POSTGRES_PASSWORD: dsarclock_local_dev
+      POSTGRES_DB: dsarclock
+    ports:
+      - "127.0.0.1:5438:5432"
