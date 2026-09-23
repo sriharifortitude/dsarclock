@@ -1,0 +1,10 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/DsarClock.Api/DsarClock.Api.csproj" />
+    <Project Path="src/DsarClock.Core/DsarClock.Core.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/DsarClock.Api.Tests/DsarClock.Api.Tests.csproj" />
+    <Project Path="tests/DsarClock.Core.Tests/DsarClock.Core.Tests.csproj" />
+  </Folder>
+</Solution>
