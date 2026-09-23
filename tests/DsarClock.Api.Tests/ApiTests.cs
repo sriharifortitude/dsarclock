@@ -8,18 +8,29 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Time.Testing;
 using Npgsql;
 using Testcontainers.PostgreSql;
 
 namespace DsarClock.Api.Tests;
+
+/// <summary>
+/// A clock the tests set to any date, in either direction. FakeTimeProvider
+/// refuses to go backwards, which is right for timer tests and wrong for
+/// tests that each live on their own calendar day.
+/// </summary>
+public sealed class SettableClock : TimeProvider
+{
+    public DateTimeOffset Now { get; set; } = DateTimeOffset.UnixEpoch;
+
+    public override DateTimeOffset GetUtcNow() => Now;
+}
 
 /// <summary>One Postgres container and one app for the whole class; each test uses fresh request ids.</summary>
 public sealed class StackFixture : IAsyncLifetime
 {
     public const string Token = "test-token-0123456789abcdef0123456789";
     private readonly PostgreSqlContainer _pg = new PostgreSqlBuilder("postgres:17-alpine").Build();
-    public FakeTimeProvider Clock { get; } = new();
+    public SettableClock Clock { get; } = new();
     public WebApplicationFactory<Program> Factory { get; private set; } = null!;
 
     public async Task InitializeAsync()
@@ -43,7 +54,7 @@ public sealed class StackFixture : IAsyncLifetime
 
     /// <summary>Midday in Berlin on the given date, so "today" is unambiguous.</summary>
     public void SetToday(string date) =>
-        Clock.SetUtcNow(new DateTimeOffset(DateTime.Parse(date, CultureInfo.InvariantCulture).AddHours(10), TimeSpan.Zero));
+        Clock.Now = (new DateTimeOffset(DateTime.Parse(date, CultureInfo.InvariantCulture).AddHours(10), TimeSpan.Zero));
 }
 
 public class ApiTests(StackFixture stack) : IClassFixture<StackFixture>
